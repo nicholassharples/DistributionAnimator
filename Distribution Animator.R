@@ -11,6 +11,7 @@ saveplot <- function(param) {
 ## Stitch frames together with
 ## ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output.mp4
 
+totalframes <- 299
 
 ## Binomial Distribution
 
@@ -28,14 +29,18 @@ DrawGraph <- function(p) {
     scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("probability") +
-    ggtitle(paste("Binomial distribution with 50 trials and probability of success p=",p,sep="")) +
+    ggtitle(paste("Binomial distribution with 50 trials and probability of success p=",format(p,digits = 3, nsmall = 2, width = 3),sep="")) +
     dark_theme_gray()
 
 }
 
-param <- seq(0,1,0.01)
-param <- c(param,rev(param))
-saveplot(param[-length(param)])
+?format
+
+param <- seq(0,1,length.out = (totalframes+1)/2)
+param <- c(param,rev(param)) # totalframes + 1 frames
+saveplot(param[-length(param)]) # totalframes
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output1.mp4")
 
 # Trials
 
@@ -51,16 +56,18 @@ DrawGraph <- function(trials) {
     scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("probability") +
-    ggtitle(paste("Binomial distribution with ",trials, " trials and probability of success p=0.3", sep="")) +
+    ggtitle(paste("Binomial distribution with ",format(trials, width = 2), " trials and probability of success p=0.3", sep="")) +
     dark_theme_gray()
   
 }
 
 DrawGraph(50)
 
-param <- 1:150
+param <- 1:((totalframes+1)/2)
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output2.mp4")
 
 ## Poisson Distribution
 
@@ -76,17 +83,18 @@ DrawGraph <- function(lambda) {
     scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("probability") +
-    ggtitle(paste("Poisson distribution with rate parameter lambda = ",lambda,sep="")) +
+    ggtitle(paste("Poisson distribution with rate parameter lambda = ",format(lambda,digits=3, nsmall = 2, width = 3),sep="")) +
     dark_theme_gray()
   
 }
 
 DrawGraph(2.3)
 
-param <- seq(0.01,15,0.05)
+param <- seq(0.01,15,length.out=(totalframes+1)/2)
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
 
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output3.mp4")
 
 ## Uniform distribution
 
@@ -102,28 +110,29 @@ DrawGraph <- function(param) {
     scale_x_continuous(limits = c(0, 20)) + 
     scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
-    ylab("probability") +
-    ggtitle(paste("Uniform distribution on the interval [",param[1], ",",param[2],"]",sep="")) +
+    ylab("density") +
+    ggtitle(paste("Uniform distribution on the interval [",format(param[1],digits=3, nsmall = 2, width = 3), ",",format(param[2],digits=3, width=3, nsmall =2),"]",sep="")) +
     dark_theme_gray()
   
 }
 DrawGraph(c(1,4))
 
-bparam <- seq(4,15,0.1)
-aparam <- seq(1,10,0.1)
+bparam <- seq(4, 15, length.out=(totalframes+1)/2)
+aparam <- seq(1, 12, length.out=(totalframes+1)/2-1)
 n <- length(bparam)
 m <- length(aparam)
 bparam <- c(bparam,rep(15,m)) # b moves then holds still
-aparam <- c(rep(1,n),aparam) # a holds still then moves
+aparam <- c(rep(1,n),aparam) # a holds still then moves # 202 frames
 
-saveplot <- function() {
+saveplotunif <- function() {
   for (i in 1:length(bparam)) {
     png(paste("Frame",sprintf("%06d", i),".png",sep=""),width=480)
     print(DrawGraph(c(aparam[i],bparam[i])))
     dev.off()
   }
 }
-saveplot()
+saveplotunif()
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output4.mp4")
 
 ## Normal Distribution
 # Mean
@@ -140,15 +149,17 @@ DrawGraph <- function(param) {
     scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("density") +
-    ggtitle(paste("Normal distribution with mean ",format(param,digits=3), " and variance 1",sep="")) +
+    ggtitle(paste("Normal distribution with mean ",format(param,digits=3, nsmall = 2, width = 3), " and variance 1",sep="")) +
     dark_theme_gray()
   
 }
 DrawGraph(1)
 
-param <- seq(-3,3,0.1)
+param <- seq(-3, 3, length.out=(totalframes+1)/2)
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output5.mp4")
 
 ## Normal Distribution
 # Variance
@@ -165,15 +176,17 @@ DrawGraph <- function(param) {
     scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("density") +
-    ggtitle(paste("Normal distribution with mean 0 and variance ",format(param,digits=3),sep="")) +
+    ggtitle(paste("Normal distribution with mean 0 and variance ",format(param,digits=3, nsmall = 2, width = 3),sep="")) +
     dark_theme_gray()
   
 }
 DrawGraph(1)
 
-param <- seq(0.4,3,0.1)
+param <- seq(0.4,3,length.out=(totalframes+1)/2)
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output6.mp4")
 
 
 ## Chi-square
@@ -197,16 +210,19 @@ DrawGraph <- function(param) {
     #scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("density") +
-    ggtitle(paste("Chi-square distribution with ",param,titletext, sep="")) +
+    ggtitle(paste("Chi-square distribution with ",format(param,width = 2),titletext, sep="")) +
     dark_theme_gray()
   
 }
-DrawGraph(20)
+DrawGraph(15)
 
-param <- 1:20
+param <- 1:15
+param <- rep(param,each = 10)
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
 
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output7.mp4")
 
 ## Exponential Distribution
 DrawGraph <- function(param) {
@@ -223,15 +239,17 @@ DrawGraph <- function(param) {
     #scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("density") +
-    ggtitle(paste("Exponential distribution with rate lambda = ",param, sep="")) +
+    ggtitle(paste("Exponential distribution with rate lambda = ",format(param,digits=3, nsmall = 2,width=3), sep="")) +
     dark_theme_gray()
   
 }
 DrawGraph(0.1)
 
-param <- seq(0.1,3,0.1)
+param <- seq(0.1,3,length.out = (totalframes+1)/2)
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output8.mp4")
 
 ## Gamma Distribution
 ## Shape
@@ -249,15 +267,17 @@ DrawGraph <- function(param) {
     #scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("density") +
-    ggtitle(paste("Gamma distribution with shape k = ",format(param,digits=2, nsmall = 1), " and scale = 3", sep="")) +
+    ggtitle(paste("Gamma distribution with shape k = ",format(param,digits=3, nsmall = 2,width = 3), " and scale = 3", sep="")) +
     dark_theme_gray()
   
 }
 DrawGraph(0.1)
 
-param <- seq(0.1,6,0.1)
+param <- seq(0.1,6, length.out = (totalframes+1)/2 )
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output9.mp4")
 
 ## Scale
 DrawGraph <- function(param) {
@@ -274,15 +294,17 @@ DrawGraph <- function(param) {
     #scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("density") +
-    ggtitle(paste("Gamma distribution with shape k = 2 and scale = ",param, sep="")) +
+    ggtitle(paste("Gamma distribution with shape k = 2 and scale = ",format(param, digits=3, nsmall=2, width = 3) , sep="")) +
     dark_theme_gray()
   
 }
 DrawGraph(3)
 
-param <- seq(0.1,6,0.1)
+param <- seq(0.1,6,length.out = (totalframes+1)/2 )
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output10.mp4")
 
 
 ## Beta Distribution
@@ -301,15 +323,18 @@ DrawGraph <- function(param) {
     #scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("density") +
-    ggtitle(paste("Beta distribution with alpha = ",format(param,digits=2, nsmall = 1), " and beta = 2", sep="")) +
+    ggtitle(paste("Beta distribution with alpha = ",format(param,digits=3, nsmall = 2, width = 3), " and beta = 2", sep="")) +
     dark_theme_gray()
   
 }
 DrawGraph(10)
 
-param <- seq(0.1,10,0.1)
+param <- seq(0.1,10,length.out = (totalframes+1)/2 )
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output11.mp4")
+
 
 ## Beta
 DrawGraph <- function(param) {
@@ -326,13 +351,24 @@ DrawGraph <- function(param) {
     #scale_y_continuous(limits = c(0, 1)) + 
     xlab("x") +
     ylab("density") +
-    ggtitle(paste("Beta distribution with alpha = 2 and beta = ",format(param,digits=2, nsmall = 1), sep="")) +
+    ggtitle(paste("Beta distribution with alpha = 2 and beta = ",format(param,digits=3, nsmall = 2, width = 3), sep="")) +
     dark_theme_gray()
   
 }
 DrawGraph(2)
 
-param <- seq(0.1,10,0.1)
+param <- seq(0.1,10,length.out = (totalframes+1)/2)
 param <- c(param,rev(param))
-saveplot(param[-length(param)])
+saveplot(param[-length(param)]) # 299 frames
+
+system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output12.mp4")
+
+
+paste('ffmpeg',
+       ' "-i Output1.mp4" -i "Output2.mp4" -i "Output3.mp4" -i "Output4.mp4" -i "Output5.mp4" -i "Output6.mp4" ',
+        ' "-i Output7.mp4" -i "Output8.mp4" -i "Output9.mp4" -i "Output10.mp4" -i "Output11.mp4" -i "Output12.mp4" ',
+      
+'
+
+
 
