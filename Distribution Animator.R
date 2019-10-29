@@ -364,11 +364,40 @@ saveplot(param[-length(param)]) # 299 frames
 system("ffmpeg -i Frame%06d.png -vcodec libx264 -pix_fmt yuv420p Output12.mp4")
 
 
-paste('ffmpeg',
-       ' "-i Output1.mp4" -i "Output2.mp4" -i "Output3.mp4" -i "Output4.mp4" -i "Output5.mp4" -i "Output6.mp4" ',
-        ' "-i Output7.mp4" -i "Output8.mp4" -i "Output9.mp4" -i "Output10.mp4" -i "Output11.mp4" -i "Output12.mp4" ',
-      
-'
+## Create the mosaic command for ffmpeg
 
+mosaic <- paste('ffmpeg',
+       ' -i "Output1.mp4" -i "Output2.mp4" -i "Output3.mp4" -i "Output4.mp4" -i "Output5.mp4" -i "Output6.mp4" ',
+        ' -i "Output7.mp4" -i "Output8.mp4" -i "Output9.mp4" -i "Output10.mp4" -i "Output11.mp4" -i "Output12.mp4" ',
+      '-filter_complex " nullsrc=size=1920x1440 [base]; ',
+      ' [0:v] setpts=PTS-STARTPTS, scale=480x480 [rc11]; ',
+      ' [1:v] setpts=PTS-STARTPTS, scale=480x480 [rc12]; ',
+      ' [2:v] setpts=PTS-STARTPTS, scale=480x480 [rc13]; ',
+      ' [3:v] setpts=PTS-STARTPTS, scale=480x480 [rc14]; ',
+      ' [4:v] setpts=PTS-STARTPTS, scale=480x480 [rc21]; ',
+      ' [5:v] setpts=PTS-STARTPTS, scale=480x480 [rc22]; ',
+      ' [6:v] setpts=PTS-STARTPTS, scale=480x480 [rc23]; ',
+      ' [7:v] setpts=PTS-STARTPTS, scale=480x480 [rc24]; ',
+      ' [8:v] setpts=PTS-STARTPTS, scale=480x480 [rc31]; ',
+      ' [9:v] setpts=PTS-STARTPTS, scale=480x480 [rc32]; ',
+      ' [10:v] setpts=PTS-STARTPTS, scale=480x480 [rc33]; ',
+      ' [11:v] setpts=PTS-STARTPTS, scale=480x480 [rc34]; ',
+      ' [base][rc11] overlay=shortest=1 [tmp1];',
+      ' [tmp1][rc12] overlay=shortest=1:x=480 [tmp2];',
+      ' [tmp2][rc13] overlay=shortest=1:x=960 [tmp3];',
+      ' [tmp3][rc14] overlay=shortest=1:x=1440 [tmp4];',
+      ' [tmp4][rc21] overlay=shortest=1:y=480 [tmp5];',
+      ' [tmp5][rc22] overlay=shortest=1:x=480:y=480 [tmp6];',
+      ' [tmp6][rc23] overlay=shortest=1:x=960:y=480 [tmp7];',
+      ' [tmp7][rc24] overlay=shortest=1:x=1440:y=480 [tmp8];',
+      ' [tmp8][rc31] overlay=shortest=1:y=960 [tmp9];',
+      ' [tmp9][rc32] overlay=shortest=1:x=480:y=960 [tmp10];',
+      ' [tmp10][rc33] overlay=shortest=1:x=960:y=960 [tmp11];',
+      ' [tmp11][rc34] overlay=shortest=1:x=1440:y=960',
+      ' " -c:v libx264 output.mp4', sep=""
+)
 
+## Run the mosaic command
+
+system(mosaic)
 
